@@ -216,11 +216,13 @@ func parseSET(p *Parser) (lines []string) {
 	case "=":
 		return []string{fmt.Sprintf("scoreboard players set %v %v %v", name.value, boardName, value.value)}
 		return lines
-	case "-=":
+	case "-=": 
 		fallthrough
 	case "+=":
 		fallthrough
 	case "*=":
+		fallthrough
+	case "/=":
 		fallthrough
 	case "%=":
 		val := value.value
