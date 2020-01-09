@@ -10,7 +10,7 @@ const (
 	AlphaUpper         = "ABCDEFGHIJKLMNOPQRSTUVWXYZ_"
 	AlphaLower         = "abcdefghijklmnopqrstuvwxyz_"
 	AlphaAll           = AlphaLower + AlphaUpper
-	NumberCharacters   = "1234567890"
+	NumberCharacters   = "-1234567890"
 	OperatorCharacters = "-+*%/"
 	WhiteSpace         = "\t\n "
 )
@@ -35,6 +35,7 @@ const (
 type token struct {
 	itemType
 	value string
+	line int
 }
 
 type lexer struct {
@@ -43,11 +44,15 @@ type lexer struct {
 	src         string
 	items       []token
 	exitOnError bool
+	line int
 }
 
 func (l *lexer) next() (c uint8) {
 	c = l.src[l.pos]
 	l.pos += 1
+	if c == '\n' {
+		l.line++
+	}
 	return c
 }
 func (l *lexer) accept(valid string) bool {
@@ -59,25 +64,38 @@ func (l *lexer) accept(valid string) bool {
 }
 func (l *lexer) backup() {
 	l.pos -= 1
+	if l.src[l.pos] == '\n' {
+		l.line--
+	}
 }
 
 func (l *lexer) ignore() {
 	l.start = l.pos
 }
 
+func (l *lexer) peek() (uint8) {
+	r := l.next()
+	l.backup()
+	return r
+}
+func (l *lexer) peekAhead(i int) (uint8) {
+	return l.src[l.pos+i]
+}
+
 func (l *lexer) emit(item itemType) {
 	val := l.src[l.start:l.pos]
 	l.start = l.pos
-	l.items = append(l.items, token{item, val})
+	l.items = append(l.items, token{item, val, l.line})
 }
 
 func (l *lexer) errorf(f string, args ...interface{}) {
 	item := token{
 		itemType: ErrorItem,
 		value:    fmt.Sprintf(f, args...),
+		line: l.line,
 	}
 	if l.exitOnError {
-		fmt.Println(item.value)
+		fmt.Printf("Line %v: %v", item.line, item.value)
 		os.Exit(1)
 	}
 	l.items = append(l.items, item)
@@ -110,7 +128,7 @@ func lexMain(l *lexer) StateFunc {
 	case l.accept("}"):
 		l.emit(EndBlockItem)
 	case l.accept("="):
-		l.emit(AssignmentItem)
+		return lexEquals
 	case l.accept("\""):
 		return lexString
 	case l.accept("`"):
@@ -118,27 +136,14 @@ func lexMain(l *lexer) StateFunc {
 	case l.accept("><"):
 		l.accept("=")
 		l.emit(ConditionItem)
-		return lexAfterAssignment
-	case l.accept("-"):
-		if l.accept("=") {
-			l.emit(AssignmentItem)
-			return lexAfterAssignment
-		}
-		if !l.accept(NumberCharacters) {
-			break
-		}
-		fallthrough
+		return lexValue
+	case l.peekAhead(1) == '=' && l.accept(OperatorCharacters):
+		l.next()
+		l.emit(AssignmentItem)
+		return lexValue
 	case l.accept(NumberCharacters):
 		return lexNumber
-	case l.accept(OperatorCharacters):
-		if l.accept("=") {
-			l.emit(AssignmentItem)
-			return lexAfterAssignment
-		}
-
 	default:
-		fmt.Println(l.src[l.pos])
-		fmt.Println(l.pos)
 		l.errorf("Unrecognized character %v", l.src[l.start])
 		return nil
 	}
@@ -147,6 +152,14 @@ func lexMain(l *lexer) StateFunc {
 
 }
 
+func lexEquals(l *lexer) StateFunc {
+	if l.accept("=") {
+		l.emit(ConditionItem)
+	} else {
+		l.emit(AssignmentItem)
+	}
+	return lexValue
+}
 func lexComment(l *lexer) StateFunc {
 	if l.accept("\n") {
 		l.backup()
@@ -157,16 +170,22 @@ func lexComment(l *lexer) StateFunc {
 	l.next()
 	return lexComment
 }
-func lexAfterAssignment(l *lexer) StateFunc {
+func lexValue(l *lexer) StateFunc {
+	// parses a number or identifier
 	switch {
 	case l.accept(WhiteSpace):
 		l.ignore()
-	case l.accept(NumberCharacters):
+	case l.accept(NumberCharacters+"-"):
 		return lexNumber
 	case l.accept(AlphaAll):
 		return lexIdent
+	case l.accept("\""):
+		return lexString
+	default:
+		l.errorf("Invalid character for value")
 	}
-	return lexAfterAssignment
+
+	return lexValue
 }
 func lexCommand(l *lexer) StateFunc {
 	if l.pos >= len(l.src) {

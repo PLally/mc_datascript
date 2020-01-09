@@ -1,21 +1,31 @@
 NAMESPACE example
 
-ALIAS my_value = 10
-ALIAS message = "Hello World"
+ALIAS negative_integer = -20
+ALIAS positive_integer = 20
+ALIAS string_alias = "Hello World"
 
 FUNC setup {
     ; this is a comment
-    ; commands enclosed in `` are interpreted as minecraft commands
-    ;  #{message} is replaced with the ALIAS defined above
+    `scoreboard objectives add example_vars`
 
-    `say "#{message}"`
-    SET score = 10
-    CALL increase_score
-    IF score > 14 {
-        `say "Something"`
-    }
+    ; use a clock to schedule things running in a loop
+    SET clock_max = 2000
+    SET clock = clock_max
+    SET clock_speed = 2
 }
 
-FUNC increase_score {
-    SET score += 30
+FUNC dosomething {
+	`say #{string_alias}`
+}
+
+FUNC ontick {
+	SET clock -= clock_speed
+
+	IF clock < 1 {
+		SET clock = clock_max
+		`say "Reset Clock"`
+	}
+	IF clock < 600 {
+        CALL dosomething
+    }
 }

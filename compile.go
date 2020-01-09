@@ -174,7 +174,9 @@ func parseIF(p *Parser) (lines []string) {
 	name := p.next()
 	condition := p.next()
 	value := p.next()
-
+	if condition.value == "==" {
+		condition.value	= "="
+	}
 	if p.next().itemType != StartBlockItem {
 		panic("No block start after IF")
 	}

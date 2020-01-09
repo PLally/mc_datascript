@@ -6,3 +6,7 @@
 - move lex.go and compile.go into separate packages
 
 
+### Info
+- language keywords are allways uppercase e.g. `FUNC` `ALIAS` `SET` and are always followed by an identifier (a-z and `_`)
+- `{` and `}` open and close a block, everything in a block will eventually be translated into a list of minecraft commands
+- text enclosed in \` is interpreted as a minecraft command e.g. \`say "Hello World"\`
