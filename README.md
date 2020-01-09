@@ -1,5 +1,5 @@
 # Minecraft Datapack scripting language
-###TODO
+### TODO
 - print location of errors
 - better error handling
 - rewrite compile.go
