@@ -1,0 +1,21 @@
+NAMESPACE example
+
+ALIAS my_value = 10
+ALIAS message = "Hello World"
+
+FUNC setup {
+    ; this is a comment
+    ; commands enclosed in `` are interpreted as minecraft commands
+    ;  #{message} is replaced with the ALIAS defined above
+
+    `say "#{message}"`
+    SET score = 10
+    CALL increase_score
+    IF score > 14 {
+        `say "Something"`
+    }
+}
+
+FUNC increase_score {
+    SET score += 30
+}
