@@ -161,13 +161,15 @@ func parseInnerDef(p *Parser) []string {
 	case "CALL":
 		return parseCALL(p)
 	case "IF":
-		return parseIF(p)
+		return parseIF(p, false)
+	case "UNLESS":
+		return  parseIF(p, true)
 	default:
 		panic(fmt.Sprintf("Unrecognized operation %v", p.currentItem.value))
 	}
 }
 
-func parseIF(p *Parser) (lines []string) {
+func parseIF(p *Parser, isUnless bool) (lines []string) {
 	funcName := "if/f" + strconv.Itoa(p.anonymousConstantId)
 	boardName := p.namespace + "_vars"
 	p.anonymousConstantId++
@@ -197,9 +199,11 @@ func parseIF(p *Parser) (lines []string) {
 
 	mcf.commands = append(mcf.commands)
 	p.functions = append(p.functions, mcf)
+	ifOrUnless := "if"
+	if isUnless { ifOrUnless = "unless" }
 	return append(lines, fmt.Sprintf(
-		"execute if score %[1]v %[2]v %[3]v %[4]v %[2]v run function %[5]v:%[6]v",
-		name.value, boardName, condition.value, val, mcf.namespace, mcf.filepath,
+		"execute %[1]v score %[2]v %[3]v %[4]v %[5]v %[3]v run function %[6]v:%[7]v",
+		ifOrUnless, name.value, boardName, condition.value, val, mcf.namespace, mcf.filepath,
 	))
 
 }

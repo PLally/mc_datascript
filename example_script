@@ -21,7 +21,7 @@ FUNC dosomething {
 FUNC ontick {
 	SET clock -= clock_speed
 
-	IF clock < 1 {
+	UNLESS clock > 1 {
 		SET clock = clock_max
 		`say "Reset Clock"`
 	}
