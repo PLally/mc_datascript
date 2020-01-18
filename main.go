@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 func main() {
 	// src is the input that we want to tokenize.
-	srcb, err := ioutil.ReadFile("example_script")
+	srcb, err := ioutil.ReadFile(os.Args[2])
 	if err != nil {
 		panic(err)
 	}

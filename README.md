@@ -2,9 +2,12 @@
 ### TODO
 - print location of errors
 - better error handling
+- allow some sort of SLEEP and LOOP function
+- allow calling functions from different namespaces
+- atomically  generate tick.json file
 - rewrite compile.go
 - move lex.go and compile.go into separate packages
-
+- add ALIAS support outside strings and commands 
 
 ### Info
 - language keywords are allways uppercase e.g. `FUNC` `ALIAS` `SET` and are always followed by an identifier (a-z and `_`)

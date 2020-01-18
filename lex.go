@@ -182,7 +182,7 @@ func lexValue(l *lexer) StateFunc {
 	case l.accept("\""):
 		return lexString
 	default:
-		l.errorf("Invalid character for value")
+		l.errorf("Invalid character for value %v", l.peek())
 	}
 
 	return lexValue

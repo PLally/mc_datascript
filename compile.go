@@ -31,6 +31,9 @@ func (p *Parser) next() token {
 	item := p.tokens[p.pos]
 	p.currentItem = item
 	p.pos++
+	if item.itemType == CommentItem {
+		return p.next()
+	}
 	return item
 }
 
