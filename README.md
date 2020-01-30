@@ -1,4 +1,5 @@
 # Minecraft Datapack scripting language
+check out [example_script](https://github.com/PLally/mc_datascript/blob/master/example_script) for an example of this language in use
 ### TODO
 - print location of errors
 - better error handling
