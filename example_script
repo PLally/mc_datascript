@@ -1,8 +1,8 @@
 NAMESPACE example
 
-ALIAS negative_integer = -20
-ALIAS positive_integer = 20
-ALIAS string_alias = "Hello World"
+CONST negative_integer = -20
+CONST positive_integer = 20
+CONST string_alias = "Hello World"
 
 FUNC setup {
     ; this is a comment

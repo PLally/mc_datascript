@@ -121,7 +121,7 @@ func parseTopLevelDef(p *Parser) ParserStateFunc {
 		return parseFile
 	case "FUNC":
 		return parseFunc
-	case "ALIAS":
+	case "CONST":
 		return parseAlias
 	}
 	fmt.Printf("Unrecognized token %v\n", p.currentItem.itemType)

@@ -1,0 +1,68 @@
+NAMESPACE uhc
+
+; this is a simple pvp game where the border constantly shrinks
+; last person alive wins
+
+CONST border_shrink_amount = -50
+CONST border_shrink_time = 60
+
+CONST game_state_waiting = 0
+CONST game_state_init = 1
+CONST game_state_running = 2
+
+FUNC setup {
+    `scoreboard objectives add uhc_vars dummy`
+    `scoreboard objectives add uhc_deaths deathCount {"text":"deaths"}`
+    `gamerule naturalRegeneration false`
+    `team add staff {"text":"staff"} `
+
+    SET game_state = 0
+    SET clock_max = 9000
+    SET clock = 9000
+
+}
+
+FUNC start {
+
+    `spreadplayers 0 0 100 4000 true @a[gamemode=adventure]`
+    `gamemode survival @a[gamemode=adventure]`
+
+    `effect give @a minecraft:resistance 15 255`
+    `effect give @a minecraft:regeneration 15 255`
+    `effect give @a minecraft:saturation 10 255`
+
+    SET game_state = 2
+}
+
+FUNC ontick {
+
+    IF game_state == 2 { ; border shrinking logic
+        SET clock -= 1
+        IF clock < 1 {
+            CALL shrink
+            CALL reset_clock
+        }
+
+        IF clock == 600 {
+            CALL shrink_warning
+        }
+
+        `tp @p[scores={uhc_deaths=1..}] 0 250 0`
+        `gamemode adventure @p[scores={uhc_deaths=1..}]`
+        `scoreboard players set @p[scores={uhc_deaths=1..}] uhc_deaths 0`
+    }
+}
+
+FUNC shrink_warning {
+    `say "Border shrinking in 30 seconds"`
+}
+
+FUNC shrink {
+    `say "Border Shrinking"`
+    `title @a title {"text":"Border Shrinking"}`
+    `worldborder add #{border_shrink_amount} #{border_shrink_time}`
+}
+
+FUNC reset_clock {
+    SET clock = 9000
+}
